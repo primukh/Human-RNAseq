@@ -1,0 +1,45 @@
+#On RStudio, type the following code to download DESeq on your local Rstudio
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install()
+BiocManager::install("DESeq2")
+
+#Load DESeq2
+library("DESeq2")
+
+#Load your data
+countdata <- read.table("/Users/priyankamukherjee/Desktop/U373_RIPSeq/counts.tsv", row.names = 1, header = TRUE, sep = '\t')
+
+countdata <- countdata[,6:ncol(countdata)]
+
+countdata <- as.matrix(countdata)
+
+coldata <- read.csv("/Users/priyankamukherjee/Desktop/U373_RIPSeq/Labels.csv", row.names = 1)
+
+coldata <- coldata[,c("Condition","Sample")]
+
+colnames(countdata)
+
+colnames(countdata) <- gsub("..Results_GSF2887.aligned.GSF2887.Hundley.", "", colnames(countdata))
+colnames(countdata) <- gsub("_S1_R1_001_Aligned.sortedByCoord.out.bam", "", colnames(countdata))
+colnames(countdata) <- gsub("_S3_R1_001_Aligned.sortedByCoord.out.bam", "", colnames(countdata))
+colnames(countdata) <- gsub("_S5_R1_001_Aligned.sortedByCoord.out.bam", "", colnames(countdata))
+colnames(countdata) <- gsub("_S7_R1_001_Aligned.sortedByCoord.out.bam", "", colnames(countdata))
+colnames(countdata) <- gsub("_S2_R1_001_Aligned.sortedByCoord.out.bam", "", colnames(countdata))
+colnames(countdata) <- gsub("_S4_R1_001_Aligned.sortedByCoord.out.bam", "", colnames(countdata))
+colnames(countdata) <- gsub("_S6_R1_001_Aligned.sortedByCoord.out.bam", "", colnames(countdata))
+colnames(countdata) <- gsub("_S8_R1_001_Aligned.sortedByCoord.out.bam", "", colnames(countdata))
+colnames(countdata)
+
+#[1] "PreImmune_IP_Rep1"                                                      
+ [2] "..Results_GSF2887.aligned.genome_Aligned.sortedByCoord.out.bam"         
+ [3] "PreImmune_IP_Rep2"                                                      
+ [4] "PreImmune_IP_Rep3"                                                      
+ [5] "..Results_GSF2887.aligned.Results_GSF2887_Aligned.sortedByCoord.out.bam"
+ [6] "PreImmune_IP_Rep4"                                                      
+ [7] "ADAR3_IP_Rep1"                                                          
+ [8] "ADAR3_IP_Rep3"                                                          
+ [9] "ADAR3_IP_Rep4"                                                          
+[10] "ADAR3_IP_Rep2"      
+
