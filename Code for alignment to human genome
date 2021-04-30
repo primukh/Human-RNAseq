@@ -101,7 +101,7 @@ BAMS=$(find ./Results_GSF2887/aligned -name "*\.bam")
 
 featureCounts \
   -a genome/annotation.gtf \
-  -o results/counts/counts.tsv \
+  -o Results_GSF2887/counts/counts.tsv \
   -t gene \
   -g gene_id \
   --largestOverlap \
