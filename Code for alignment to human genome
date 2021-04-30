@@ -57,14 +57,14 @@ STAR \
 
 # Create an output directory for aligned reads.
 
-mkdir -p results/aligned
+mkdir -p Results_GSF2887/aligned
 
 # Align the reads.
 
 FASTQ=$GSF2848*
 
 for FASTQ in ${FASTQ[@]}; do
-  PREFIX=results/aligned/$(basename $FASTQ .fastq)_
+  PREFIX=Results_GSF2887/aligned/$(basename $FASTQ .fastq)_
   STAR \
     --runThreadN 8 \
     --outFilterMultimapNmax 1 \
