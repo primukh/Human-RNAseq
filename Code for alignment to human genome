@@ -97,7 +97,7 @@ mkdir -p Results_GSF2887/counts
 
 # Count reads.
 
-BAMS=$(find ./results/aligned -name "*\.bam")
+BAMS=$(find ./Results_GSF2887/aligned -name "*\.bam")
 
 featureCounts \
   -a genome/annotation.gtf \
