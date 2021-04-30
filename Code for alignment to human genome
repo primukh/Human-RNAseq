@@ -93,7 +93,7 @@ for BAM in ${BAMS[@]}; do
 
 # Create an output directory for read counts.
 
-mkdir -p results/counts
+mkdir -p Results_GSF2887/counts
 
 # Count reads.
 
