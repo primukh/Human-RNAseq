@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /N/slate/primukh/GSF2848
+cd /N/slate/primukh/GSF2887
 
 #unzip all your  fastq.gz files
 
