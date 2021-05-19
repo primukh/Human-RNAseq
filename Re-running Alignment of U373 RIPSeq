@@ -33,6 +33,8 @@ for FASTQ in ${FASTQ[@]}; do
     --outFilterMultimapNmax 1 \
     --outFilterScoreMinOverLread .66 \
     --outFilterMismatchNmax 5 \
+    --outFilterMatchNminOverLread 0 \ 
+    -- outFilterMatchNmin 0 \ 
     --outFilterMismatchNoverLmax .3 \
     --runMode alignReads \
     --genomeDir genome/index \
