@@ -61,7 +61,7 @@ mkdir -p Results_GSF2887/aligned
 
 # Align the reads.
 
-FASTQ=$GSF2848*
+FASTQ=$GSF2887*
 
 for FASTQ in ${FASTQ[@]}; do
   PREFIX=Results_GSF2887/aligned/$(basename $FASTQ .fastq)_
