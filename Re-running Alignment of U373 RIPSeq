@@ -1,1 +1,79 @@
+#!/bin/bash
 
+cd /N/slate/primukh/GSF2887
+
+# Remember to activate your environment.
+
+conda activate rnaseq
+
+# Unload system perl for compatability with entrez-direct.
+
+module unload perl
+
+#Note: The original alignment and DESeq is stored in /N/slate/primukh/GSF2887/Results_GSF2887. In this folder you'll find the original DESeq csv file ("U373_RIPSeq.csv") and the redo version was done to plot the PCA plot ("U373_REPSeq_Redo.csv).
+#The realignment will be saved in folder "Results_GSF2887_Repeat"  
+
+
+  ###########################
+## Align Reads to Genome ##
+###########################
+
+# Create an output directory for aligned reads.
+
+mkdir -p Results_GSF2887_Repeat/aligned_repeat
+
+# Align the reads.
+
+FASTQ=$GSF2887*
+
+for FASTQ in ${FASTQ[@]}; do
+  PREFIX=Results_GSF2887_Repeat/aligned_repeat/$(basename $FASTQ .fastq)_
+  STAR \
+    --runThreadN 8 \
+    --outFilterMultimapNmax 1 \
+    --outFilterScoreMinOverLread .66 \
+    --outFilterMismatchNmax 5 \
+    --outFilterMismatchNoverLmax .3 \
+    --runMode alignReads \
+    --genomeDir genome/index \
+    --readFilesIn $FASTQ \
+    --outFileNamePrefix $PREFIX \
+    --outSAMattributes All \
+    --outSAMtype BAM SortedByCoordinate
+done
+
+# Indexing the BAM files.
+
+BAMS=($(find ./Results_GSF2887/aligned -name "*\.bam"))
+
+for BAM in ${BAMS[@]}; do
+  samtools index $BAM
+  done
+  
+  ####################
+## Count Features ##
+####################
+
+# Create an output directory for read counts.
+
+mkdir -p Results_GSF2887/counts
+
+# Count reads.
+
+BAMS=$(find ./Results_GSF2887/aligned -name "*\.bam")
+
+featureCounts \
+  -a genome/annotation.gtf \
+  -o Results_GSF2887/counts/counts.tsv \
+  -t gene \
+  -g gene_id \
+  --largestOverlap \
+  --readExtension3 150 \
+  --primary \
+  -s 2 \
+  -T 8 \
+  ${BAMS}
+  
+  #copy files to local desktop
+  scp primukh@carbonate.uits.iu.edu:/N/slate/primukh/GSF2848/results/counts/counts.tsv.summary .
+  scp primukh@carbonate.uits.iu.edu:/N/slate/primukh/GSF2848/results/counts/counts.tsv .
