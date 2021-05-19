@@ -9,7 +9,7 @@ library("GenomicRanges")
 ## Load Variants
 ## ----------
 
-variants <- read.delim("338.10.16.fwd.var.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE) %>%
+variants <- read.delim("338.10.16.fwd.var.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE) 
 
 # .csv file is read in as a data table. Convert the data table to a tibble.
 	
