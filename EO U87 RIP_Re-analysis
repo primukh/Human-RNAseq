@@ -1,0 +1,44 @@
+#After copying files from project space
+ 
+cd /N/slate/primukh/U87RIP
+
+gunzip -d *.gz  #takes a really long time, be patient
+
+source activate rnaseq
+
+module unload perl
+
+mkdir -p Results_U87RIP/aligned
+
+mkdir genome
+
+cd GSF2887/genome
+
+#copying the human genome file used for aligning U373 RIP reads
+
+cp annotation.gtf /N/slate/primukh/U87RIP/genome/
+
+cp assembly.fasta /N/slate/primukh/U87RIP/genome/
+
+# -r since index is a directory
+
+cp -r index/ /N/slate/primukh/U87RIP/genome/
+ 
+cd /N/slate/primukh/U87RIP/Results_U87RIP/aligned
+
+#Since my files are paired-end, will have to align them properly. Not using a loop, will do each pair individually. 
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/338_10.16_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/338-10-16_S1_R1_001.fastq /N/slate/primukh/U87RIP/338-10-16_S1_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/338_10.26_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/338-10-26_S3_R1_001.fastq /N/slate/primukh/U87RIP/338-10-26_S3_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/338_11.14_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/338-11-14_S2_R1_001.fastq /N/slate/primukh/U87RIP/338-11-14_S2_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/412_10.16_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/412-10-16_S2_R1_001.fastq /N/slate/primukh/U87RIP/412-10-16_S2_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/412_10.26_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/412-10-26_S1_R1_001.fastq /N/slate/primukh/U87RIP/412-10-26_S1_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/412_11.14_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/412-11-14_S3_R1_001.fastq /N/slate/primukh/U87RIP/412-11-14_S3_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/338_input_10.16_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/338_input_10-16_S1_R1_001.fastq /N/slate/primukh/U87RIP/338_input_10-16_S1_R2_001.fastq
+
