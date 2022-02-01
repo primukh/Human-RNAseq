@@ -42,3 +42,45 @@ STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 -
 
 STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/338_input_10.16_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/338_input_10-16_S1_R1_001.fastq /N/slate/primukh/U87RIP/338_input_10-16_S1_R2_001.fastq
 
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/338_input_10.26_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/338_input_10-26_S3_R1_001.fastq /N/slate/primukh/U87RIP/338_input_10-26_S3_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/338_input_11.14_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/338_input_11-14_S5_R1_001.fastq /N/slate/primukh/U87RIP/338_input_11-14_S5_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/412_input_10.16_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/412_input_10-16_S2_R1_001.fastq /N/slate/primukh/U87RIP/412_input_10-16_S2_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/412_input_10.26_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/412_input_10-26_S4_R1_001.fastq /N/slate/primukh/U87RIP/412_input_10-26_S4_R2_001.fastq
+
+STAR --runThreadN 8 --outFilterMultimapNmax 1 --outFilterScoreMinOverLread .66 --outFilterMismatchNmax 10 --outFilterMismatchNoverLmax .3 --runMode alignReads --genomeDir /N/slate/primukh/U87RIP/genome/index --outFileNamePrefix /N/slate/primukh/U87RIP/Results_U87RIP/aligned/412_input_11.14_star. --outSAMattributes All --outSAMtype BAM SortedByCoordinate --readFilesIn /N/slate/primukh/U87RIP/412_input_11-14_S6_R1_001.fastq /N/slate/primukh/U87RIP/412_input_11-14_S6_R2_001.fastq
+
+#Indexing the BAM files 
+
+BAMS=($(find ./Results_U87RIP/aligned -name "*\.bam"))
+
+for BAM in ${BAMS[@]}; do
+  samtools index $BAM
+  done
+  
+  
+    ####################
+## Count Features ##
+####################
+
+# Create an output directory for read counts.
+
+mkdir -p Results_U87RIP/counts
+
+BAMS=$(find ./Results_U87RIP/aligned -name "*\.bam")
+
+featureCounts \
+  -a genome/annotation.gtf \
+  -o Results_U87RIP/counts/counts.tsv \
+  -p \
+  -t gene \
+  -g gene_id \
+  --largestOverlap \
+  --readExtension3 150 \
+  --primary \
+  -s 2 \
+  -T 8 \
+  ${BAMS}
+
