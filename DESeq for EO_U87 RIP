@@ -1,0 +1,56 @@
+if (!require("BiocManager", quietly = TRUE))
++     install.packages("BiocManager")
+
+BiocManager::install("DESeq2")
+
+library(tidyverse)
+
+library(DESeq2)
+
+countdata <- read.table("/Users/priyankamukherjee/Desktop/counts.tsv", header = TRUE, row.names = 1)
+
+view(countdata)
+
+countdata <- countdata[,6:ncol(countdata)]
+
+view(countdata)
+
+colnames(countdata)
+
+colnames(countdata) <- gsub("..Results_U87RIP.aligned.","",colnames(countdata))
+
+colnames(countdata)
+
+colnames(countdata) <- gsub("_star.Aligned.sortedByCoord.out.bam","",colnames(countdata))
+
+view(countdata)
+
+colnames(countdata)
+
+countdata <- as.matrix(countdata)
+
+coldata <- read.csv("/Users/priyankamukherjee/Desktop/labels.csv",row.names = 1)
+
+#Create separate labels.csv file. Order of rows should be same as that of feature counts file. 
+
+coldata -> coldata[,c("condition", "assay", "sample")]
+
+dds <- DESeqDataSetFromMatrix(countData = countdata, colData = coldata, design = ~ assay + condition + assay:condition)
+
+#Removing rows having 0 across all columns
+keep <- rowSums(counts(dds)) >= 1
+
+dds <- dds[keep,]
+
+#running DESEq, Likelihood Test of Ratios (LTR)
+dds <- DESeq(dds, test="LRT", reduced= ~ assay + condition)
+
+res <- results(dds)
+
+resdata <- merge(as.data.frame(res), as.data.frame(counts(dds, normalized=TRUE)), by="row.names", sort=FALSE)
+
+names(resdata)[1] <- "Gene"
+
+write.csv(resdata, file="/Users/priyankamukherjee/Desktop/EORIP.csv")
+
+
