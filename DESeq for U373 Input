@@ -1,0 +1,45 @@
+library("tidyverse")
+library("DESeq2")
+
+genelist <- read.table("/Users/priyankamukherjee/Desktop/U373Input/counts.tsv", header = TRUE, row.names = 1)
+view(genelist)
+
+genelist <- genelist[,6:ncol(genelist)]
+
+view(genelist)
+
+colnames(genelist)
+
+colnames(genelist) <- gsub("..Results_GSF3037.aligned.GSF3037.Hundley.PM_","", colnames(genelist))
+colnames(genelist) <- gsub("_S7_R1_001_Aligned.sortedByCoord.out.bam","", colnames(genelist))
+colnames(genelist) <- gsub("_S9_R1_001_Aligned.sortedByCoord.out.bam","", colnames(genelist))
+colnames(genelist) <- gsub("_S10_R1_001_Aligned.sortedByCoord.out.bam","", colnames(genelist))
+colnames(genelist) <- gsub("_S8_R1_001_Aligned.sortedByCoord.out.bam","", colnames(genelist))
+colnames(genelist)
+
+genelist <- as.matrix(genelist)
+
+genelist <- genelist [,c("U373_Input_1","U373_Input_3","U373_Input_4","U373_Input_2")]
+
+(condition <- factor(c(rep("b",4))))
+
+(coldata <- data.frame(row.names = colnames(genelist), condition))
+
+dds <- DESeqDataSetFromMatrix( countData = genelist, colData = coldata, design=~1)
+
+#Design=~1 as only one variable, nothing to compare with. 
+
+keep = rowSums(counts(dds)) >=1
+
+dds <- dds[keep,]
+
+dds <- DESeq(dds)
+
+res <- results(dds)
+
+resdata <- merge(as.data.frame(res), as.data.frame(counts(dds,normalized=TRUE)), by="row.names", sort=FALSE)
+
+names(resdata)[1] <- "Gene"
+
+write.csv(resdata, file= "/Users/priyankamukherjee/Desktop/U373Input//U373_Input.csv")
+
