@@ -1,0 +1,14 @@
+BAMS=$(find ./Results_GSF2887/aligned -name "*\.bam")
+
+featureCounts \
+  -a genome/annotation.gtf \
+  -o Results_GSF2887/counts/counts_ignoredup.tsv \
+  --ignoreDup
+  -t gene \
+  -g gene_id \
+  --largestOverlap \
+  --readExtension3 150 \
+  --primary \
+  -s 2 \
+  -T 8 \
+  ${BAMS}
