@@ -1,8 +1,21 @@
+cd /N/slate/primukh/GSF2887
+
+# Remember to activate your environment.
+
+source activate rnaseq
+
+# Unload system perl for compatability with entrez-direct.
+
+module unload perl
+
+mkdir -p Results_GSF2887/counts_removedups
+
+
 BAMS=$(find ./Results_GSF2887/aligned -name "*\.bam")
 
 featureCounts \
   -a genome/annotation.gtf \
-  -o Results_GSF2887/counts/counts_ignoredup.tsv \
+  -o Results_GSF2887/counts_removedups/counts_ignoredup.tsv \
   --ignoreDup
   -t gene \
   -g gene_id \
