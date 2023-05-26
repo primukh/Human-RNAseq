@@ -52,7 +52,8 @@ dds <- DESeqDataSetFromMatrix(countData = countdata,
  # Specify the reduced design matrix for the ratio of ratios analysis - Got Error (Error in DESeq(dds, test = "LRT", full = ~Assay + Condition + Assay:Condition,  : if one of 'full' and 'reduced' is a matrix, the other must be also a matrix)
 reduced_design <- model.matrix(~ Assay + Condition, data = colData(dds))
 
-#Changed to the following
+#Changed to the following - this seemed to have worked?? atleast no errors. 
+
 dds <- DESeqDataSetFromMatrix(countData = countdata,
                               colData = sample_metadata,
                               design = ~ Assay + Condition + Assay:Condition)
