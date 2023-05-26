@@ -1,0 +1,102 @@
+#on Rstudio in thinlinc
+
+library("tidyverse")
+
+library("DESeq2")
+
+countdata <- read.table("/N/slate/primukh/U87RIP/Results_U87RIP/counts/counts.tsv", header = TRUE, row.names = 1)
+
+view(countdata)
+
+countdata <- countdata[,6:ncol(countdata)]
+
+view(countdata)
+
+colnames(countdata)
+
+colnames(countdata) <- gsub("..Results_U87RIP.aligned.","",colnames(countdata))
+
+colnames(countdata)
+
+colnames(countdata) <- gsub("_star.Aligned.sortedByCoord.out.bam","",colnames(countdata))
+
+countdata <- as.matrix(countdata)
+ 
+#The following didnt work. Gave the error (Error in DESeqDataSet(se, design = design, ignoreRank) : all variables in design formula must be columns in colData)
+
+sample_metadata <- data.frame(
+  Sample = c("412_10.16", "412_input_10.16", "412_10.26", "412_input_10.26","412_11.14", "412_input_11.14", "338_10.16", "338_input_10.16", "338_10.26", "338_input_10.26","338_11.14", "338_input_11.14"),  
+  Assay = c("IP", "Input", "IP", "Input", "IP", "Input", "IP", "Input", "IP", "Input", "IP", "Input"),     
+  Condition = c("B", "B", "B", "B", "B", "B", "A", "A", "A", "A", "A", "A")                
+)
+
+dds <- DESeqDataSetFromMatrix(countData = countdata,
+                              colData = sample_metadata,
+                              design = ~ Assay + Condition + Assay:Condition)
+                              
+                              
+#Attempt 2
+
+# Create a sample_metadata data frame - no error
+sample_metadata <- data.frame(
+  Sample = c("338_10.16", "338_input_11.14", "338_input_10.26", "412_11.14", "338_11.14", "412_input_10.26",
+             "412_input_10.16", "412_input_11.14", "412_10.16", "412_10.26", "338_input_10.16", "338_10.26"),
+  Assay = c("IP", "Input", "Input", "IP", "IP", "Input", "Input", "Input", "IP", "IP", "Input", "IP"),
+  Condition = c("A", "A", "A", "B", "A", "B", "B", "B", "B", "B", "A", "A")
+)
+# Create a DESeqDataSet object - no error
+dds <- DESeqDataSetFromMatrix(countData = countdata,
+                              colData = sample_metadata,
+                              design = ~ Assay + Condition + Assay:Condition)
+                      
+ # Specify the reduced design matrix for the ratio of ratios analysis - Got Error (Error in DESeq(dds, test = "LRT", full = ~Assay + Condition + Assay:Condition,  : if one of 'full' and 'reduced' is a matrix, the other must be also a matrix)
+reduced_design <- model.matrix(~ Assay + Condition, data = colData(dds))
+
+#Changed to the following
+dds <- DESeqDataSetFromMatrix(countData = countdata,
+                              colData = sample_metadata,
+                              design = ~ Assay + Condition + Assay:Condition)
+
+
+#Deletes rows with 0 in all columns
+keep = rowSums(counts(dds)) >=1
+
+dds <- dds[keep,]
+
+dds <- DESeq(dds)
+
+# Perform likelihood ratio test for the ratio of ratios
+results_ratioratios <- results(dds, contrast = c("Assay", "IP", "Input"))
+
+resdata <- merge(as.data.frame(results_ratioratios), as.data.frame(counts(dds,normalized=TRUE)), by="row.names", sort=FALSE)
+
+names(resdata)[1] <- "Gene"
+
+write.csv(resdata, file= "/N/slate/primukh/U87RIP/Results_U87RIP/U87RIP_Retry2023.csv")
+
+scp primukh@carbonate.uits.iu.edu:/N/slate/primukh/U87RIP/Results_U87RIP/U87RIP_Retry2023.csv .
+
+genelist <- read.csv("/N/slate/primukh/U87RIP/Results_U87RIP/U87RIP_Retry2023.csv", header = TRUE, row.names = 1)
+
+colnames(genelist)
+
+library("tidyr")
+library("dplyr")
+library("rlang")
+library("magrittr")
+
+#Needed to load biomart *facepalm*
+install.packages("filelock") 
+
+#load biomart package since running the ensemble command was giving an error. UseDataset command is available only through biomart. 
+
+library(biomaRt, lib.loc = "/geode2/soft/hps/rhel7/bioconductor/3.14")
+
+ensembl <- useDataset("hsapiens_gene_ensembl", mart = useMart("ensembl", host = "www.ensembl.org"))
+
+annotations <- getBM(attributes=c("ensembl_gene_id", "hgnc_symbol", "description", "gene_biotype"), filters = "ensembl_gene_id", values = genelist$Gene, mart = ensembl)
+
+final_genelist <- inner_join(genelist, annotations, by = c("Gene"="ensembl_gene_id"))
+
+write.csv(final_genelist,file="/N/slate/primukh/U87RIP/Results_U87RIP/AnnotatedU87RIP_Retry2023.csv")
+
