@@ -1,0 +1,16 @@
+conda install -c anaconda git
+
+#Copying Aidan's folders into server
+git clone https://github.com/Aimann/IntronExonDistribution.git
+
+cd IntronExonDistribution
+
+conda env create -f intronexon.yaml
+
+#to list all avaialable conda environments
+conda env list
+
+#link to get the basic gene annotation file from gencode. Try for the latest from the website. Also, basic gene annotation file since reads can map to multiple introns/exons depending on different isoforms so mapping becomes tricky. 
+#Basic gene annotation assumes the longest isoform for that given gene. We use comprehensive annotation for bound targets but in that case, each read is aligned to a gene and not the isoforms so doesnt matter. 
+
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_41/gencode.v41.basic.annotation.gtf.gz
