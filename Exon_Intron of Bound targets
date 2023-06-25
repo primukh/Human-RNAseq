@@ -1,3 +1,9 @@
+cd /N/slate/primukh/FLAGRIPSeq
+
+mkdir Exon_Intron
+
+cd Exon_Intron
+
 conda install -c anaconda git
 
 #Copying Aidan's folders into server
@@ -12,5 +18,56 @@ conda env list
 
 #link to get the basic gene annotation file from gencode. Try for the latest from the website. Also, basic gene annotation file since reads can map to multiple introns/exons depending on different isoforms so mapping becomes tricky. 
 #Basic gene annotation assumes the longest isoform for that given gene. We use comprehensive annotation for bound targets but in that case, each read is aligned to a gene and not the isoforms so doesnt matter. 
+#following link provided by Aidan(June 2023)
+
+cd /N/slate/primukh/FLAGRIPSeq/Exon_Intron
 
 wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_41/gencode.v41.basic.annotation.gtf.gz
+
+gunzip gencode.v41.basic.annotation.gtf.gz 
+
+#Create a folder and copy all bams file to it for easy access
+
+mkdir bams
+
+cd bams 
+
+cp /N/slate/primukh/FLAGRIPSeq/Raw_data/Unzipped_files/Results_FLAGRIP/aligned/*.bam .
+
+cd /N/slate/primukh/FLAGRIPSeq/Exon_Intron/IntronExonDistribution
+
+#before running the snakefile, we need to edit it and provide our pathnames to the gtf file and the bams folder
+#on thinlinc, use the command gedit to edit the snake file
+#only change the pathnames i.e. first two lines. 
+# Usually only exopn info is available in gtf files and introns need to be annotatedd. The snakefile is written such that it first annotates the introns and then uses feature counts to count aligned reads. 
+
+# {condition}.bam command is equivalent to *.bam in bash. Fetches all files with the given extension/name
+
+# -O Flag for FeatureCounts allows overlapping of reads to intron-exon junctions (a.k.a reads spanning intron-exon junctions)
+
+# -fracOverlap 0.2 flag requires atleast 20% of the read to overlap with the feature to be annotated. This can be more or less stringent however is needed as an overlap 1-2 bp between feature and read can be considered as an overlap which we dont want. 
+
+#Finally, from the counted reads the program will estimate RPKM values for each gene. RPKM is a normalized unit of transcript expression - It normalizes reads based off of gene/feature length. 
+# For example, an intron spanning 1000bp will have more reads thann an exon spanning 100bp so normalizatuon is necessary
+
+snakemake --cores 1 
+
+#look for a snakefile and run it using 1 core. Takes about 10-15mins. 
+
+#Just in case you face an error ant want to rerun snakefile it will be locked. So to unlock it, use the following command: snake --unlock
+
+
+
+
+
+
+
+
+
+#Featurecounts V2.0.3
+
+
+
+
+
+
