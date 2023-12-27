@@ -1,0 +1,115 @@
+#unzip all your  fastq.gz files
+
+gunzip -d *.gz
+
+# Remember to activate your environment.
+
+source activate rnaseq
+
+# Unload system perl for compatability with entrez-direct.
+
+module unload perl
+
+# Assigning Variables.
+
+ASSEMBLY='http://ftp.ensembl.org/pub/release-103/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz'
+
+ANNOTATION='http://ftp.ensembl.org/pub/release-103/gtf/homo_sapiens/Homo_sapiens.GRCh38.103.gtf.gz'
+
+################################
+## Generate STAR Genome Index ##
+################################
+
+# Make a directory to store the genome files within your working directory.
+
+mkdir -p genome
+
+# Download and unpack the genome assembly.
+
+curl $ASSEMBLY | gunzip > ./genome/assembly.fasta
+
+# Download and unpack the genome annotation.
+
+curl $ANNOTATION | gunzip > ./genome/annotation.gtf
+
+# Create a directory to store the index.
+
+mkdir -p genome/index
+
+# Create the STAR genome index.
+# --genomeSAindexNbases 12 was recommended by software.
+
+STAR \
+  --runThreadN 4 \
+  --runMode genomeGenerate \
+  --genomeDir genome/index \
+  --genomeFastaFiles genome/assembly.fasta \
+  --sjdbGTFfile genome/annotation.gtf \
+  --genomeSAindexNbases 12
+
+
+###########################
+## Align Reads to Genome ##
+###########################
+
+# Create an output directory for aligned reads.
+
+mkdir -p Results_FLAGRIP/aligned
+
+# Align the reads.
+
+FASTQ=$U373*
+
+for FASTQ in ${FASTQ[@]}; do
+  PREFIX=Results_FLAGRIP/aligned/$(basename $FASTQ .fastq)_
+  STAR \
+    --runThreadN 8 \
+    --outFilterMultimapNmax 1 \
+    --outFilterScoreMinOverLread .66 \
+    --outFilterMismatchNmax 10 \
+    --outFilterMismatchNoverLmax .3 \
+    --runMode alignReads \
+    --genomeDir /N/slate/primukh/RNASEq_Redo_Dec23/genome/index \
+    --readFilesIn $FASTQ \
+    --outFileNamePrefix $PREFIX \
+    --outSAMattributes All \
+    --outSAMtype BAM SortedByCoordinate
+done
+
+# Indexing the BAM files.
+
+BAMS=($(find ./Results_FLAGRIP/aligned -name "*\.bam"))
+
+for BAM in ${BAMS[@]}; do
+  samtools index $BAM
+  done
+
+ ####################
+## Count Features ##
+####################
+
+# Create an output directory for read counts.
+
+mkdir -p Results_FLAGRIP/counts
+
+# Count reads.
+
+BAMS=$(find ./Results_FLAGRIP/aligned -name "*\.bam")
+
+featureCounts \
+  -a /N/slate/primukh/RNASEq_Redo_Dec23/genome/annotation.gtf \
+  -o Results_FLAGRIP/counts/counts.tsv \
+  -t gene \
+  -g gene_id \
+  --largestOverlap \
+  --readExtension3 150 \
+  --primary \
+  -s 2 \
+  -T 8 \
+  ${BAMS}
+
+
+
+
+
+
