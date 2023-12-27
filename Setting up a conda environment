@@ -1,0 +1,47 @@
+#Open Firefox on thinlinc and go to the following link: https://docs.conda.io/projects/miniconda/en/latest/ and scroll down to linux and download the latest version
+#Open Mate terminal 
+
+cd ~ #Goes to homedirectory 
+cd Downloads
+
+mv Miniconda3-latest-Linux-x86_64.sh /N/u/primukh/Quartz/. #Moves Miniconda file to homedirectory
+
+cd ~
+
+#Install Miniconda
+
+bash Miniconda3-latest-Linux-x86_64.sh
+
+#Follow instructtion sto install
+
+#Gave me a warning that Quartz environment runs on python so whether I would like to initiate base conda environment on startup - I chose yes! 
+
+
+#If you ever need to update conda, type the following command. Beneficial to do at startup. 
+
+conda update -n base conda
+
+# install sra-tools (only need to do this once)
+
+conda install -c bioconda sra-tools
+
+# create rnaseq environment (only need to do this once)
+
+conda create -n rnaseq -c conda-forge -c bioconda entrez-direct sra-tools fastqc seqtk star samtools subread
+
+#to list condaa environments, this keeps changinging fyi
+conda info --envs
+
+# activate environment
+
+conda activate rnaseq
+
+#Proceed to alignment of reads
+
+
+
+
+
+
+
+
