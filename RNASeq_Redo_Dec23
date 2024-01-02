@@ -94,11 +94,11 @@ mkdir -p Results_FLAGRIP/counts
 
 # Count reads.
 
-BAMS=$(find ./Results_FLAGRIP/aligned -name "*\.bam")
+BAMS=$(find ./Results_FLAGRNASeq/aligned -name "*\.bam")
 
 featureCounts \
   -a /N/slate/primukh/RNASEq_Redo_Dec23/genome/annotation.gtf \
-  -o Results_FLAGRIP/counts/counts.tsv \
+  -o /N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/FLAGRNASeq_counts.tsv \
   -t gene \
   -g gene_id \
   --largestOverlap \
@@ -108,7 +108,9 @@ featureCounts \
   -T 8 \
   ${BAMS}
 
-
+#copy files to local desktop, perform on terminal
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/Counts/FLAGRNASeq_counts.tsv .
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/Counts/FLAGRNASeq_counts.tsv.summary .
 
 
 
