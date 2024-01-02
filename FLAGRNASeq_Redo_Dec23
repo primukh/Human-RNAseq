@@ -1,12 +1,10 @@
-#unzip all your  fastq.gz files
-
-gunzip -d *.gz
+#Transferred all necessary fastq files 
 
 # Remember to activate your environment.
 
 source activate rnaseq
 
-# Unload system perl for compatability with entrez-direct.
+# Unload system perl for compatability with entrez-direct. This step was not needed as perl was never loaded. 
 
 module unload perl
 
@@ -61,7 +59,7 @@ mkdir -p Results_FLAGRIP/aligned
 FASTQ=$U373*
 
 for FASTQ in ${FASTQ[@]}; do
-  PREFIX=Results_FLAGRIP/aligned/$(basename $FASTQ .fastq)_
+  PREFIX=Results_FLAGRNASeq/aligned/$(basename $FASTQ .fastq)_
   STAR \
     --runThreadN 8 \
     --outFilterMultimapNmax 1 \
@@ -78,7 +76,7 @@ done
 
 # Indexing the BAM files.
 
-BAMS=($(find ./Results_FLAGRIP/aligned -name "*\.bam"))
+BAMS=($(find ./Results_FLAGRNASeq/aligned -name "*\.bam"))
 
 for BAM in ${BAMS[@]}; do
   samtools index $BAM
