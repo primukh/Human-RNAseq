@@ -1,0 +1,116 @@
+#Transferred all necessary fastq files 
+#RNASEq environment was already activated
+#genome was already generated so started with read alignment
+
+###########################
+## Align Reads to Genome ##
+###########################
+
+# Create an output directory for aligned reads.
+
+mkdir -p Results_U373InputRNASeq/aligned
+
+# Align the reads.
+
+FASTQ=$GSF3037*
+
+for FASTQ in ${FASTQ[@]}; do
+  PREFIX=Results_U373InputRNASeq/aligned/$(basename $FASTQ .fastq)_
+  STAR \
+    --runThreadN 8 \
+    --outFilterMultimapNmax 1 \
+    --outFilterScoreMinOverLread .66 \
+    --outFilterMismatchNmax 10 \
+    --outFilterMismatchNoverLmax .3 \
+    --runMode alignReads \
+    --genomeDir /N/slate/primukh/RNASEq_Redo_Dec23/genome/index \
+    --readFilesIn $FASTQ \
+    --outFileNamePrefix $PREFIX \
+    --outSAMattributes All \
+    --outSAMtype BAM SortedByCoordinate
+done
+
+
+# Indexing the BAM files.
+
+BAMS=($(find ./Results_U373InputRNASeq/aligned -name "*\.bam"))
+
+for BAM in ${BAMS[@]}; do
+  samtools index $BAM
+  done
+
+####################
+## Count Features ##
+####################
+
+# Create an output directory for read counts.
+
+mkdir -p Results_U373InputRNASeq/counts
+
+# Count reads.
+
+BAMS=$(find ./Results_U373InputRNASeq/aligned -name "*\.bam")
+
+featureCounts \
+  -a /N/slate/primukh/RNASEq_Redo_Dec23/genome/annotation.gtf \
+  -o /N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/counts/U373InputRNASeq_counts.tsv \
+  -t gene \
+  -g gene_id \
+  --largestOverlap \
+  --readExtension3 150 \
+  --primary \
+  -s 2 \
+  -T 8 \
+  ${BAMS}
+
+#copy files to local desktop, perform on terminal
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/counts/U373InputRNASeq_counts.tsv .
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/counts/U373InputRNASeq_counts.tsv.summary .
+
+########################################DESEq2################################
+library("tidyverse")
+library("DESeq2")
+
+countdata <- read.table("/N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/counts/U373InputRNASeq_counts.tsv", header = TRUE, row.names = 1)
+
+#To view the excel sheet on Rstudio
+View(countdata)
+
+#To remove all other columns except the ones containing the read counts i.e. after column 6. 
+countdata <- countdata[,6:ncol(countdata)]
+
+#To display names of all columns present in your file
+colnames(countdata)
+
+#To remove additional parts of the column names
+colnames(countdata) <- gsub("..Results_U373InputRNASeq.aligned.GSF3037.Hundley.PM_U373_","", colnames(countdata))
+
+colnames(countdata) <- gsub("_S7_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S9_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S10_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S8_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+
+countdata <- as.matrix(countdata)
+
+countdata <- countdata[,c("Input_1","Input_3","Input_4","Input_2")]
+(condition <- factor(c(rep("b",4))))
+
+(coldata <- data.frame(row.names = colnames(countdata), condition))
+
+dds <- DESeqDataSetFromMatrix( countData = countdata, colData = coldata, design=~1) 
+#Since in this case we have a single dataset, design cannot be equaal to ~condition. It has to be ~1
+
+keep = rowSums(counts(dds)) >=1
+
+dds <- dds[keep,]
+dds <- DESeq(dds)
+
+res <- results(dds)
+
+resdata <- merge(as.data.frame(res), as.data.frame(counts(dds,normalized=TRUE)), by="row.names", sort=FALSE)
+
+names(resdata)[1] <- "Gene"
+
+write.csv(resdata, file= "/N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/U373InputRNASeq_01.02.24.csv")
+
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/U373InputRNASeq_01.02.24.csv .
