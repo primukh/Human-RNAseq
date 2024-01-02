@@ -110,6 +110,16 @@ featureCounts \
 scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/Counts/FLAGRNASeq_counts.tsv .
 scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/Counts/FLAGRNASeq_counts.tsv.summary .
 
+########################################DESEq2################################
 
+#Open RStudio on Thinlinc
+
+library("tidyverse")
+
+#Needed to download and then load DESEq2. DOwnloading not needed from next time onwards
+library("BiocManager")
+BiocManager::install("DESeq2")
+
+library("DESeq2")
 
 
