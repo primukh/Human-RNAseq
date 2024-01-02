@@ -1,0 +1,31 @@
+#Transferred all necessary fastq files 
+#RNASEq environment was already activated
+#genome was already generated so started with read alignment
+
+###########################
+## Align Reads to Genome ##
+###########################
+
+# Create an output directory for aligned reads.
+
+mkdir -p Results_U373InputRNASeq/aligned
+
+# Align the reads.
+
+FASTQ=$GSF3037*
+
+for FASTQ in ${FASTQ[@]}; do
+  PREFIX=Results_U373InputRNASeq/aligned/$(basename $FASTQ .fastq)_
+  STAR \
+    --runThreadN 8 \
+    --outFilterMultimapNmax 1 \
+    --outFilterScoreMinOverLread .66 \
+    --outFilterMismatchNmax 10 \
+    --outFilterMismatchNoverLmax .3 \
+    --runMode alignReads \
+    --genomeDir /N/slate/primukh/RNASEq_Redo_Dec23/genome/index \
+    --readFilesIn $FASTQ \
+    --outFileNamePrefix $PREFIX \
+    --outSAMattributes All \
+    --outSAMtype BAM SortedByCoordinate
+done
