@@ -29,3 +29,40 @@ for FASTQ in ${FASTQ[@]}; do
     --outSAMattributes All \
     --outSAMtype BAM SortedByCoordinate
 done
+
+
+# Indexing the BAM files.
+
+BAMS=($(find ./Results_U373InputRNASeq/aligned -name "*\.bam"))
+
+for BAM in ${BAMS[@]}; do
+  samtools index $BAM
+  done
+
+####################
+## Count Features ##
+####################
+
+# Create an output directory for read counts.
+
+mkdir -p Results_U373InputRNASeq/counts
+
+# Count reads.
+
+BAMS=$(find ./Results_U373InputRNASeq/aligned -name "*\.bam")
+
+featureCounts \
+  -a /N/slate/primukh/RNASEq_Redo_Dec23/genome/annotation.gtf \
+  -o /N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/counts/U373InputRNASeq_counts.tsv \
+  -t gene \
+  -g gene_id \
+  --largestOverlap \
+  --readExtension3 150 \
+  --primary \
+  -s 2 \
+  -T 8 \
+  ${BAMS}
+
+#copy files to local desktop, perform on terminal
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/counts/U373InputRNASeq_counts.tsv .
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/U373_Input/Results_U373InputRNASeq/counts/U373InputRNASeq_counts.tsv.summary .
