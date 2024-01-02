@@ -179,13 +179,81 @@ write.csv(resdata, file= "/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_
 scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/FLAGRNASeq_01.02.24.csv .
 
 
+########################################DESEq2 for Control and WT by itself################################
+countdata <- read.table("/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/Counts/FLAGRNASeq_counts.tsv", header = TRUE, row.names = 1)
+countdata <- countdata[,6:ncol(countdata)]
 
+colnames(countdata) <- gsub("..Results_FLAGRNASeq.aligned.U373.","", colnames(countdata))
+colnames(countdata) <- gsub("_S8_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S1_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S6_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S9_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S7_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S5_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S2_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S4_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S3_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("Control.","", colnames(countdata))
+colnames(countdata) <- gsub("WT.","", colnames(countdata))
+colnames(countdata) <- gsub("R.Dom.","", colnames(countdata))
+colnames(countdata) <- gsub("ADAR3.","", colnames(countdata))
 
+countdata <- as.matrix(countdata)
 
+countdata <- countdata[,c("338.Input.1","338.Input.3","338.Input.4")]
+(condition <- factor(c(rep("b",3))))
 
+(coldata <- data.frame(row.names = colnames(countdata), condition))
 
+dds <- DESeqDataSetFromMatrix( countData = countdata, colData = coldata, design=~1) 
 
+keep = rowSums(counts(dds)) >=1
 
+dds <- dds[keep,]
+dds <- DESeq(dds)
+res <- results(dds)
 
+resdata <- merge(as.data.frame(res), as.data.frame(counts(dds,normalized=TRUE)), by="row.names", sort=FALSE)
+names(resdata)[1] <- "Gene"
 
+write.csv(resdata, file= "/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/U373_ControlOnly_RNASeq_01.02.24.csv")
+
+#Clean entire dataset and redo for 412 and 413 
+library("tidyverse")
+library("DESeq2")
+countdata <- read.table("/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/Counts/FLAGRNASeq_counts.tsv", header = TRUE, row.names = 1)
+countdata <- countdata[,6:ncol(countdata)]
+colnames(countdata) <- gsub("..Results_FLAGRNASeq.aligned.U373.","", colnames(countdata))
+colnames(countdata) <- gsub("_S8_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S1_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S6_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S9_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S7_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S5_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S2_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S4_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("_S3_R1_001_Aligned.sortedByCoord.out.bam","", colnames(countdata))
+colnames(countdata) <- gsub("Control.","", colnames(countdata))
+colnames(countdata) <- gsub("WT.","", colnames(countdata))
+colnames(countdata) <- gsub("R.Dom.","", colnames(countdata))
+colnames(countdata) <- gsub("ADAR3.","", colnames(countdata))
+countdata <- as.matrix(countdata)
+countdata <- countdata[,c("413.Input.1","413.Input.3","413.Input.4")]
+(condition <- factor(c(rep("b",3))))
+(coldata <- data.frame(row.names = colnames(countdata), condition))
+dds <- DESeqDataSetFromMatrix( countData = countdata, colData = coldata, design=~1) 
+keep = rowSums(counts(dds)) >=1
+dds <- dds[keep,]
+dds <- DESeq(dds)
+res <- results(dds)
+resdata <- merge(as.data.frame(res), as.data.frame(counts(dds,normalized=TRUE)), by="row.names", sort=FALSE)
+names(resdata)[1] <- "Gene"
+
+write.csv(resdata, file= "/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/U373_ADAR3WTOnly_RNASeq_01.02.24.csv")
+##OR##
+write.csv(resdata, file= "/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/U373_ADAR3rMutantOnly_RNASeq_01.02.24.csv")
+
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/U373_ControlOnly_RNASeq_01.02.24.csv .
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/U373_ADAR3WTOnly_RNASeq_01.02.24.csv .
+scp primukh@quartz.uits.iu.edu:/N/slate/primukh/RNASEq_Redo_Dec23/FLAG_Input/Results_FLAGRNASeq/U373_ADAR3rMutantOnly_RNASeq_01.02.24.csv .
 
